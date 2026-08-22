@@ -1,17 +1,26 @@
 # Space Situational Awareness (SSA) Dashboard
+An enhanced Space Situational Awareness (SSA) dashboard that predicts satellite orbits, detects dangerous conjunctions, and visualizes collision risks in 3D to prevent Kessler Syndrome.
 
-## Overview & Core Features
-This repository contains an enhanced, locally optimized version of the IBM `spacetech-ssa` tool. It predicts satellite orbits and monitors potential conjunctions (dangerous close encounters) between the 27,000+ tracked space objects to prevent Kessler Syndrome[cite: 2]. 
+## Project Overview
+This project monitors the 27,000+ tracked space objects to predict and identify conjunctions—dangerous close encounters in orbit[cite: 3, 4]. The pipeline consists of two main components:
+*   **Orbit Prediction:** Fetches Two-Line Element (TLE) data, applies a physics model, and uses XGBoost machine learning to correct prediction errors.
+*   **Conjunction Search:** Uses a KD-Tree spatial search to find close encounters efficiently and visualizes them on a 3D CesiumJS globe.
 
-*   **Automated Risk Assessment:** Conjunctions are classified dynamically: HIGH (< 100 km), MEDIUM (100-500 km), and LOW (> 500 km)[cite: 2].
-*   **Precision Timing:** Translates raw array timesteps into exact UTC datetimes using 10-minute interval calculations[cite: 2].
-*   **Modernized Interface:** Features a dark space theme, split globe/sidebar layout, and parallel API data fetching via `Promise.all`[cite: 2].
-*   **Operational Tools:** Includes client-side filtering (Active vs. Debris) and CSV export capabilities for record-keeping[cite: 2].
-*   **Upgraded Engine:** Powered by CesiumJS 1.144 for modern 3D rendering[cite: 2].
+## Dashboard Enhancements
+The frontend dashboard and API were significantly upgraded for local execution and operational utility:
+*   **UI & Visualization:** Completely redesigned with a dark space theme, a split sidebar layout, and an upgraded CesiumJS 1.144 engine.
+*   **Data Reliability:** Replaced hardcoded Docker paths with dynamic `pathlib` resolution and removed IBM Cloud dependencies for local stability[cite: 4].
+*   **Analytics & Export:** Added a `/details` API route providing UTC datetimes and automated risk assessments (HIGH < 100km, MEDIUM 100-500km, LOW > 500km)[cite: 4].
+*   **Operational Tools:** Implemented client-side filtering (Debris vs. Active) and a CSV export feature[cite: 4].
 
-## Technical Stack
-*   **Backend:** Python 3, Flask, scikit-learn (KD-Trees), Pandas[cite: 2].
-*   **Frontend:** HTML5, CSS3, Vanilla JS, CesiumJS[cite: 2].
+## Repository Structure
+The codebase is divided into two primary pipelines[cite: 3]:
+*   `orbit_prediction/`: Contains the ETL, physics model, and ML training scripts (`spacetrack_etl.py`, `ml_model.py`)[cite: 3].
+*   `conjunction_search/`: Contains the Flask API (`api.py`), KD-Tree logic, and the frontend UI (`templates/index.html`)[cite: 3].
+*   `sample_data/`: Stores the `orbit_preds.pickle` file required for visualization[cite: 3].
 
-## Local Setup
-To run this project locally, clone the repository and install the backend dependencies. Because cloud storage dependencies have been removed for local execution, you must ensure your static `.pkl` and `.czml` data files are placed exactly in the `sample_data` directory relative to the application base path[cite: 2]. Start the application by executing the Flask server.
+## Local Execution
+To run the dashboard locally using the provided sample data:
+*   Navigate to the dashboard directory: `cd conjunction_search`[cite: 3].
+*   Install the required Python dependencies: `pip install -r requirements.txt`[cite: 3].
+*   Navigate to the API folder and start the server: `cd conjunction_search` followed by `python api.py`[cite: 3].
