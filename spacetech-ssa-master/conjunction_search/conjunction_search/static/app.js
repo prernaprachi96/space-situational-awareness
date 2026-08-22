@@ -21,6 +21,7 @@ var loading        = document.getElementById("loading");
 var errorMsg       = document.getElementById("error-msg");
 var resultsPanel   = document.getElementById("results-panel");
 var resultsList    = document.getElementById("results-list");
+var exportBtn      = document.getElementById("export-btn");
 
 // ── Slider: update displayed number as user drags ──
 numKNNs.addEventListener("input", function () {
@@ -102,7 +103,8 @@ searchBtn.addEventListener("click", function () {
 
       // Show results panel
       resultsPanel.style.display = "flex";
-
+      lastResults = details;
+      
       // No results found
       if (details.length === 0) {
         resultsList.innerHTML = `
@@ -141,4 +143,49 @@ searchBtn.addEventListener("click", function () {
       console.error("Search error:", error);
     });
 
+});
+
+// ── Export Results as CSV ──
+var lastResults = [];   // stores the last search results
+
+exportBtn.addEventListener("click", function () {
+  if (lastResults.length === 0) return;
+
+  // Get selected satellite name
+  var selectedName = asoSelect.options[asoSelect.selectedIndex].text;
+
+  // Build CSV content
+  var csvRows = [];
+
+  // Header row
+  csvRows.push([
+    'Query Satellite',
+    'Conjunction Satellite',
+    'Risk Level',
+    'Distance (km)',
+    'Closest Approach (UTC)'
+  ].join(','));
+
+  // Data rows
+  lastResults.forEach(function (sat) {
+    csvRows.push([
+      selectedName,
+      sat.name,
+      sat.risk,
+      sat.distance_km,
+      sat.time_str
+    ].join(','));
+  });
+
+  // Create downloadable file
+  var csvContent = csvRows.join('\n');
+  var blob = new Blob([csvContent], { type: 'text/csv' });
+  var url  = URL.createObjectURL(blob);
+
+  // Trigger download
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'conjunction_results.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 });

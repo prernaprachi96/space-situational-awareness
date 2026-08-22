@@ -246,3 +246,29 @@ body {
 .risk-high   { background: rgba(255,107,107,0.15); color: #ff6b6b; }
 .risk-medium { background: rgba(255,176,0,0.15);   color: #ffb000; }
 .risk-low    { background: rgba(74,222,128,0.15);  color: #4ade80; }
+
+/* ── Results Header Row ── */
+#results-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Export Button ── */
+#export-btn {
+  background: transparent;
+  border: 1px solid #1d2634;
+  border-radius: 6px;
+  color: #4fd1e8;
+  font-size: 11px;
+  font-family: monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+#export-btn:hover {
+  border-color: #4fd1e8;
+}
