@@ -1,49 +1,94 @@
-// Copyright 2020 IBM Corporation
+// SSA Conjunction Search Dashboard
+// Modified from IBM spacetech-ssa by Prerna
 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-// http://www.apache.org/licenses/LICENSE-2.0
-
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-
+// ── Initialize Cesium Viewer ──
 var viewer = new Cesium.Viewer("cesiumContainer", {
   shouldAnimate: true,
 });
 
-function updateTextInput(id, val) {
-    document.getElementById(id).value=val;
-}
+// ── Get all the HTML elements we need ──
+var asoSelect     = document.getElementById("asoSelect");
+var knnSearch     = document.getElementById("knnSearch");
+var radiusSearch  = document.getElementById("radiusSearch");
+var selectKNN     = document.getElementById("selectKNN");
+var selectRadius  = document.getElementById("selectRadius");
+var numKNNs       = document.getElementById("numKNNs");
+var numKNNsText   = document.getElementById("numKNNsText");
+var radius        = document.getElementById("radius");
+var radiusText    = document.getElementById("radiusText");
+var searchBtn     = document.getElementById("searchBtn");
+var loading       = document.getElementById("loading");
+var errorMsg      = document.getElementById("error-msg");
+var resultsPanel  = document.getElementById("results-panel");
+var resultsList   = document.getElementById("results-list");
 
-function hideShow(hideDivId, showDivId) {
-    var hideDiv = document.getElementById(hideDivId);
-    var showDiv = document.getElementById(showDivId);
-    hideDiv.style.display = "none";
-    showDiv.style.display = "block";
-}
+// ── Slider: update displayed number as user drags ──
+numKNNs.addEventListener("input", function () {
+  numKNNsText.textContent = this.value;
+});
 
-function showOrbits() {
-    viewer.dataSources.removeAll();
-    var CZMLURL = "/conjunction_search/";
-    var asoId = document.getElementById("asoSelect").value;
-    CZMLURL += asoId;
-    CZMLURL += "?";
-    if (document.getElementById("knnSearch").checked) {
-        var kNNs = document.getElementById("numKNNs").value;
-        CZMLURL += "k=";
-        CZMLURL += kNNs;
-    } else {
-        var radius = document.getElementById("radius").value;
-        CZMLURL += "radius=";
-        CZMLURL += radius;
-    }
-    viewer.dataSources.add(
-        Cesium.CzmlDataSource.load(CZMLURL)
-    );
-}
+radius.addEventListener("input", function () {
+  radiusText.textContent = this.value;
+});
+
+// ── Radio buttons: show/hide correct slider ──
+knnSearch.addEventListener("change", function () {
+  selectKNN.style.display    = "block";
+  selectRadius.style.display = "none";
+});
+
+radiusSearch.addEventListener("change", function () {
+  selectKNN.style.display    = "none";
+  selectRadius.style.display = "block";
+});
+
+// ── Search Button: run conjunction search ──
+searchBtn.addEventListener("click", function () {
+
+  // 1. Build the API URL
+  var asoId = asoSelect.value;
+  var url   = "/conjunction_search/" + asoId + "?";
+
+  if (knnSearch.checked) {
+    url += "k=" + numKNNs.value;
+  } else {
+    url += "radius=" + radius.value;
+  }
+
+  // 2. Show loading, hide error and old results
+  searchBtn.disabled        = true;
+  loading.style.display     = "flex";
+  errorMsg.style.display    = "none";
+  resultsPanel.style.display = "none";
+  resultsList.innerHTML     = "";
+  viewer.dataSources.removeAll();
+
+  // 3. Fetch CZML data from Flask backend and show on globe
+  viewer.dataSources.add(
+    Cesium.CzmlDataSource.load(url)
+  ).then(function () {
+
+    // 4. Hide loading, re-enable button
+    loading.style.display  = "none";
+    searchBtn.disabled     = false;
+
+    // 5. Show results panel with a simple message
+    resultsPanel.style.display = "flex";
+    resultsList.innerHTML = `
+      <li class="result-item">
+        <span class="result-name">Search complete</span>
+        <span class="result-distance">Orbits loaded on globe</span>
+      </li>
+    `;
+
+  }).otherwise(function (error) {
+
+    // 6. If something went wrong, show error
+    loading.style.display  = "none";
+    searchBtn.disabled     = false;
+    errorMsg.style.display = "block";
+    console.error("Search error:", error);
+
+  });
+
+});

@@ -1,30 +1,248 @@
-.backdrop {
-    display: inline-block;
-    background: rgba(42, 42, 42, 0.7);
-    border-radius: 5px;
-    border: 1px solid #444;
-    padding: 5px 10px;
-    color: #fff;
-    line-height: 150%;
-    font-size: small;
+/* ── Reset & Base ── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-#menu {
-    position: absolute;
-    left: 10px;
-    top: 10px;
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #05070c;
+  color: #e7ecf3;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
 }
 
-.nowrap {
-    white-space: nowrap;
+/* ── Layout ── */
+body {
+  display: flex;
 }
 
-html, body, #cesiumContainer {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    font-family: sans-serif;
-    background: #000;
+#cesiumContainer {
+  flex: 1;
+  height: 100vh;
 }
+
+/* ── Sidebar ── */
+#sidebar {
+  width: 300px;
+  height: 100vh;
+  background: #0c111b;
+  border-right: 1px solid #1d2634;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* ── Sidebar Header ── */
+#sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid #1d2634;
+  background: #10151f;
+}
+
+#header-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: #4fd1e8;
+  margin-bottom: 6px;
+  font-family: monospace;
+}
+
+#sidebar-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e7ecf3;
+}
+
+/* ── Sidebar Body ── */
+#sidebar-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Form Groups ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6c7686;
+}
+
+.form-group select {
+  background: #10151f;
+  border: 1px solid #1d2634;
+  border-radius: 6px;
+  color: #e7ecf3;
+  padding: 8px 10px;
+  font-size: 13px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #4fd1e8;
+}
+
+/* ── Radio Buttons ── */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #e7ecf3;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.radio-label input[type="radio"] {
+  accent-color: #ffb000;
+  width: 15px;
+  height: 15px;
+}
+
+/* ── Sliders ── */
+.form-group input[type="range"] {
+  width: 100%;
+  accent-color: #ffb000;
+  cursor: pointer;
+}
+
+/* ── Search Button ── */
+#searchBtn {
+  background: #ffb000;
+  color: #05070c;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+#searchBtn:hover {
+  opacity: 0.85;
+}
+
+#searchBtn:disabled {
+  background: #1d2634;
+  color: #6c7686;
+  cursor: not-allowed;
+}
+
+/* ── Loading Spinner ── */
+#loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #6c7686;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #1d2634;
+  border-top-color: #ffb000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Error Message ── */
+#error-msg {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid #ff6b6b;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 12px;
+  color: #ff6b6b;
+}
+
+/* ── Results Panel ── */
+#results-panel {
+  border-top: 1px solid #1d2634;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#results-header {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6c7686;
+  font-family: monospace;
+}
+
+#results-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-item {
+  background: #10151f;
+  border: 1px solid #1d2634;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e7ecf3;
+}
+
+.result-distance {
+  font-size: 12px;
+  color: #6c7686;
+  font-family: monospace;
+}
+
+.result-risk {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.risk-high   { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+.risk-medium { background: rgba(255,176,0,0.15);   color: #ffb000; }
+.risk-low    { background: rgba(74,222,128,0.15);  color: #4ade80; }

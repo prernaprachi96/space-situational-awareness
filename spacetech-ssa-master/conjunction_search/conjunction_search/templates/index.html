@@ -1,66 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <!-- Tell IE to use the latest, best version. -->
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-        <!-- Make the app on mobile take up the full browser screen and disable user scaling. -->
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Cesium.js"></script>
-    <link href="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Widgets/widgets.css"
-          rel="stylesheet">
-    <link rel="stylesheet" href="static/index.css" media="screen">
-  </head>
-  <body>
-    <div id="cesiumContainer" class="fullSize"></div>
-    <div class="backdrop" id="menu">
-      <h2>Conjunction Search</h2>
-      <span><strong>Anthropogenic Space Object</strong></span>
-      <div class="nowrap">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <title>SSA Conjunction Search</title>
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <link rel="stylesheet" href="static/index.css">
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <div id="sidebar">
+
+    <div id="sidebar-header">
+      <div id="header-label">SSA · GROUND STATION</div>
+      <h1>Conjunction Search</h1>
+    </div>
+
+    <div id="sidebar-body">
+
+      <!-- Satellite Selector -->
+      <div class="form-group">
+        <label for="asoSelect">Anthropogenic Space Object</label>
         <select id="asoSelect">
           {% for aso in asos %}
             <option value="{{ aso.aso_id }}">{{ aso.aso_name }}</option>
           {% endfor %}
         </select>
       </div>
-      <br>
-      <span><strong>Search Type</strong></span>
-      <div class="nowrap">
-        <input id="knnSearch" name="searchType" type="radio"
-               onchange="hideShow('selectRadius', 'selectKNN');"
-               checked/>
-        <label for="knnSearch">Number of Nearest ASOs</label>
+
+      <!-- Search Type -->
+      <div class="form-group">
+        <label>Search Type</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="searchType" id="knnSearch" checked>
+            Number of Nearest ASOs
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="searchType" id="radiusSearch">
+            Radius
+          </label>
+        </div>
       </div>
-      <div class="nowrap">
-        <input id="radiusSearch" name="searchType" type="radio"
-               onclick="hideShow('selectKNN', 'selectRadius');">
-        <label for="radiusSearch">Radius</label>
+
+      <!-- KNN Slider -->
+      <div class="form-group" id="selectKNN">
+        <label for="numKNNs">Nearest ASOs: <span id="numKNNsText">1</span></label>
+        <input type="range" min="1" max="10" value="1" id="numKNNs">
       </div>
-      <br>
-      <div class="nowrap" id="selectKNN">
-        <span><strong>Number of Nearest ASOs</strong></span>
-        <br>
-        <input type="range" min="1" max="10" value="1" class="slider"
-               id="numKNNs" onchange="updateTextInput('numKNNsText', this.value);">
-        <input type="text" id="numKNNsText" value="1" readonly/>
+
+      <!-- Radius Slider -->
+      <div class="form-group" id="selectRadius" style="display:none">
+        <label for="radius">Radius (meters): <span id="radiusText">10000</span></label>
+        <input type="range" min="1" max="1000000" value="10000" id="radius">
       </div>
-      <div class="nowrap" id="selectRadius" style="display:none">
-        <span><strong>Radius (meters)</strong></span>
-        <br>
-        <input type="range" min="1" max="1000000" value="10000"
-               class="slider" id="radius"
-               onchange="updateTextInput('radiusText', this.value);">
-        <input type="text" id="radiusText" value="10000" readonly/>
+
+      <!-- Submit Button -->
+      <button id="searchBtn">Run Search</button>
+
+      <!-- Loading Spinner -->
+      <div id="loading" style="display:none">
+        <div class="spinner"></div>
+        <span>Searching...</span>
       </div>
-      <br>
-      <div class="nowrap">
-        <input type="submit" onclick="showOrbits();"/>
+
+      <!-- Error Message -->
+      <div id="error-msg" style="display:none">
+        Something went wrong. Please try again.
       </div>
+
     </div>
-    <script>
-      Cesium.Ion.defaultAccessToken = '{{ cesium_api_key }}';
-    </script>
-    <script src="static/app.js"></script>
-  </body>
+
+    <!-- Results Panel -->
+    <div id="results-panel" style="display:none">
+      <div id="results-header">Detection Results</div>
+      <ul id="results-list"></ul>
+    </div>
+
+  </div>
+
+  <!-- CESIUM GLOBE -->
+  <div id="cesiumContainer"></div>
+
+  <script>
+    Cesium.Ion.defaultAccessToken = '{{ cesium_api_key }}';
+  </script>
+  <script src="static/app.js"></script>
+
+</body>
 </html>
