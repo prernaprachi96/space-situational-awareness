@@ -126,6 +126,49 @@ def conjunction_search(aso_id):
         resp = _make_czml_resp(aso_id, results)
     return resp
 
+@app.route('/conjunction_search/<aso_id>/details', methods=['GET'])
+def conjunction_search_details(aso_id):
+    k = request.args.get('k', 1, type=int)
+    search_radius = request.args.get('radius', type=float)
+    results = get_nns_for_object(orbit_df,
+                                 kd_forest,
+                                 aso_id,
+                                 k=k,
+                                 radius=search_radius)
+    details = []
+    for aso_id_result, timestep, distance in results:
+        # Get satellite name from orbit dataframe
+        aso_row = orbit_df[orbit_df.aso_id == aso_id_result]
+        aso_name = aso_row.aso_id.values[0]
+        if 'aso_name' in orbit_df.columns:
+            aso_name = aso_row.aso_name.values[0]
+
+        # Calculate risk level based on distance
+        distance_km = distance / 1000
+        if distance_km < 100:
+            risk = 'HIGH'
+        elif distance_km < 500:
+            risk = 'MEDIUM'
+        else:
+            risk = 'LOW'
+
+        details.append({
+            'name': aso_name,
+            'distance_m': round(distance),
+            'distance_km': round(distance_km, 1),
+            'timestep': timestep,
+            'risk': risk
+        })
+
+    # Remove duplicates — keep only closest approach per satellite
+    seen = {}
+    for d in details:
+        name = d['name']
+        if name not in seen or d['distance_m'] < seen[name]['distance_m']:
+            seen[name] = d
+    unique_details = sorted(seen.values(), key=lambda x: x['distance_m'])
+
+    return jsonify(unique_details)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
