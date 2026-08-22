@@ -1,5 +1,5 @@
-# Space Situational Awareness (SSA) Dashboard
-An enhanced Space Situational Awareness (SSA) dashboard that predicts satellite orbits, detects dangerous conjunctions, and visualizes collision risks in 3D to prevent Kessler Syndrome.
+# Space Situational Awareness (SSA) Dashboard - An enhanced Space Situational Awareness (SSA) dashboard that predicts satellite orbits, detects dangerous conjunctions, and visualizes collision risks in 3D to prevent Kessler Syndrome.
+
 
 ## Project Overview
 This project monitors the 27,000+ tracked space objects to predict and identify conjunctions—dangerous close encounters in orbit[cite: 3, 4]. The pipeline consists of two main components:
