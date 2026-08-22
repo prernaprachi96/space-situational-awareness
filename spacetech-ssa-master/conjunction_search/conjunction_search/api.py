@@ -152,11 +152,19 @@ def conjunction_search_details(aso_id):
         else:
             risk = 'LOW'
 
+                # Convert timestep to real UTC datetime
+        # Data starts Aug 25 2020, each step = 10 minutes
+        pred_start = orbit_df.iloc[0].get('pred_start_dt',
+                     pd.Timestamp('2020-08-25'))
+        conjunction_time = pred_start + pd.Timedelta(minutes=10 * timestep)
+        time_str = conjunction_time.strftime('%b %d %Y  %H:%M UTC')
+
         details.append({
             'name': aso_name,
             'distance_m': round(distance),
             'distance_km': round(distance_km, 1),
             'timestep': timestep,
+            'time_str': time_str,
             'risk': risk
         })
 

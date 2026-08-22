@@ -127,7 +127,7 @@ searchBtn.addEventListener("click", function () {
             Distance: ${sat.distance_km.toLocaleString()} km
           </span>
           <span class="result-distance">
-            Timestep: ${sat.timestep}
+            Closest: ${sat.time_str}
           </span>
         `;
         resultsList.appendChild(li);
