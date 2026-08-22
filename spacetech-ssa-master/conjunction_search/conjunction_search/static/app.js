@@ -22,6 +22,8 @@ var errorMsg       = document.getElementById("error-msg");
 var resultsPanel   = document.getElementById("results-panel");
 var resultsList    = document.getElementById("results-list");
 var exportBtn      = document.getElementById("export-btn");
+var typeFilter     = document.getElementById("typeFilter");
+var lastResults    = [];
 
 // ── Slider: update displayed number as user drags ──
 numKNNs.addEventListener("input", function () {
@@ -52,7 +54,7 @@ function buildQueryString() {
   }
 }
 
-// ── Risk level helper ──
+// ── Risk level helpers ──
 function getRiskClass(distanceKm) {
   if (distanceKm < 100)  return "risk-high";
   if (distanceKm < 500)  return "risk-medium";
@@ -71,7 +73,6 @@ searchBtn.addEventListener("click", function () {
   var asoId       = asoSelect.value;
   var queryString = buildQueryString();
 
-  // URLs for both requests
   var czmlURL    = "/conjunction_search/" + asoId + "?" + queryString;
   var detailsURL = "/conjunction_search/" + asoId + "/details?" + queryString;
 
@@ -83,29 +84,26 @@ searchBtn.addEventListener("click", function () {
   resultsList.innerHTML      = "";
   viewer.dataSources.removeAll();
 
-  // ── Request 1: Load orbits on globe ──
+  // Request 1: Load orbits on globe
   var czmlPromise = viewer.dataSources.add(
     Cesium.CzmlDataSource.load(czmlURL)
   );
 
-  // ── Request 2: Load details for sidebar ──
+  // Request 2: Load details for sidebar
   var detailsPromise = fetch(detailsURL)
     .then(function (res) { return res.json(); });
 
-  // ── Wait for BOTH to finish ──
+  // Wait for BOTH to finish
   Promise.all([czmlPromise, detailsPromise])
     .then(function (results) {
       var details = results[1];
 
-      // Hide loading, re-enable button
       loading.style.display  = "none";
       searchBtn.disabled     = false;
-
-      // Show results panel
       resultsPanel.style.display = "flex";
       lastResults = details;
-      
-      // No results found
+
+      // No results at all
       if (details.length === 0) {
         resultsList.innerHTML = `
           <li class="result-item">
@@ -115,8 +113,29 @@ searchBtn.addEventListener("click", function () {
         return;
       }
 
-      // Build a result card for each satellite
-      details.forEach(function (sat, index) {
+      // Apply object type filter
+      var filterValue = typeFilter.value;
+      var filtered = details.filter(function (sat) {
+        var isDebris = sat.name.includes('DEB') ||
+                       sat.name.includes('R/B') ||
+                       sat.name.includes('debris');
+        if (filterValue === 'debris') return isDebris;
+        if (filterValue === 'active') return !isDebris;
+        return true;
+      });
+
+      // Filter removed everything
+      if (filtered.length === 0) {
+        resultsList.innerHTML = `
+          <li class="result-item">
+            <span class="result-name">No results for this filter</span>
+            <span class="result-distance">Try changing the filter type</span>
+          </li>`;
+        return;
+      }
+
+      // Build result cards
+      filtered.forEach(function (sat) {
         var riskClass = getRiskClass(sat.distance_km);
         var riskLabel = getRiskLabel(sat.distance_km);
 
@@ -125,12 +144,8 @@ searchBtn.addEventListener("click", function () {
         li.innerHTML = `
           <div class="result-risk ${riskClass}">${riskLabel}</div>
           <span class="result-name">${sat.name}</span>
-          <span class="result-distance">
-            Distance: ${sat.distance_km.toLocaleString()} km
-          </span>
-          <span class="result-distance">
-            Closest: ${sat.time_str}
-          </span>
+          <span class="result-distance">Distance: ${sat.distance_km.toLocaleString()} km</span>
+          <span class="result-distance">Closest: ${sat.time_str}</span>
         `;
         resultsList.appendChild(li);
       });
@@ -146,18 +161,12 @@ searchBtn.addEventListener("click", function () {
 });
 
 // ── Export Results as CSV ──
-var lastResults = [];   // stores the last search results
-
 exportBtn.addEventListener("click", function () {
   if (lastResults.length === 0) return;
 
-  // Get selected satellite name
   var selectedName = asoSelect.options[asoSelect.selectedIndex].text;
-
-  // Build CSV content
   var csvRows = [];
 
-  // Header row
   csvRows.push([
     'Query Satellite',
     'Conjunction Satellite',
@@ -166,7 +175,6 @@ exportBtn.addEventListener("click", function () {
     'Closest Approach (UTC)'
   ].join(','));
 
-  // Data rows
   lastResults.forEach(function (sat) {
     csvRows.push([
       selectedName,
@@ -177,12 +185,10 @@ exportBtn.addEventListener("click", function () {
     ].join(','));
   });
 
-  // Create downloadable file
   var csvContent = csvRows.join('\n');
   var blob = new Blob([csvContent], { type: 'text/csv' });
   var url  = URL.createObjectURL(blob);
 
-  // Trigger download
   var a = document.createElement('a');
   a.href = url;
   a.download = 'conjunction_results.csv';
