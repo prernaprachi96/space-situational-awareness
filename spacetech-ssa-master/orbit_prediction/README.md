@@ -1,3 +1,11 @@
+# Orbit Prediction
+
+> **Note:** This component was not modified during the 2026 DRDO internship.
+> The original IBM pipeline is preserved as-is.
+> Improvements were made to the conjunction_search frontend only.
+> See the main [README] for details.
+
+
 # Introduction
 
 The orbital prediction package explores the possibilities of improving traditional physics based models of orbital dynamics using machine learning techniques.

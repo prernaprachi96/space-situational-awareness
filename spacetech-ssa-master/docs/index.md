@@ -1,3 +1,6 @@
+> **2026 Update:** Frontend dashboard significantly improved during DRDO
+> internship by Prerna. See the main [README] for details.
+
 ## Space Situational Awareness in Low Earth Orbit
 ![ASOs in LEO](images/leo_objects.png)
 *Anthropogenic Space objects in Low Earth Orbit ([Image Source](https://astriagraph.spacetech-ibm.com)*

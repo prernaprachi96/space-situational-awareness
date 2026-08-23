@@ -1,53 +1,83 @@
-# Introduction
+# Conjunction Search
 
-Once we have made predictions on where anthropogenic space objects (ASOs) in LEO are going to be in the future using the tools in the [orbit prediction package](../orbit_prediction/README.md), we need a way to quickly perform spatial-temporal search over the prediction space to determine if objects may come too close to each other. This package provides:
+> **2026 Update by Prerna (DRDO Internship):**
+> - Complete frontend redesign with dark space-themed sidebar
+> - New `/details` API route with risk classification and UTC datetimes
+> - CSV export and object type filter added
+> - Upgraded CesiumJS from v1.71 to v1.144
+> - Fixed Docker path bug for local development
+>
+> See the main [README](../README.md) for full details.
 
--   A [module](conjunction_search/conjunction_search.py) for using [k-d trees](https://en.wikipedia.org/wiki/K-d_tree) to quickly perform spatial-temporal search to answer questions like:
-    -   What are the `k` ASOs that will come closest to the given ASO over the prediction window?
-    -   For a given radius `r`, how many ASOs will come within distance `r` of the given ASO over the prediction window?
--   A [library](conjunction_search/czml.py) for building [CZML](https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Guide) JSON documents to display predicted orbits and conjunctions in a [CesiumJS](https://cesium.com/cesiumjs/) UI.
--   A [Flask](https://flask.palletsprojects.com/en/1.1.x/) application providing an HTTP API for serving CZML and JSON conjunction search results.
--   A CesiumJS UI for querying and visualizing ASO conjunctions. `r` of the given ASO over the prediction window?
+---
 
+## Introduction
 
-# Development
+Once we have predictions on where ASOs in LEO are going to be in the future
+using the [orbit prediction package](../orbit_prediction/README.md), we need
+a way to quickly perform spatial-temporal search over the prediction space to
+determine if objects may come too close to each other.
 
-A [Makefile](Makefile) is provided to automate the tasks of building and running the web service in a Docker container.
+This package provides:
 
+- A [module](conjunction_search/conjunction_search.py) using
+  [k-d trees](https://en.wikipedia.org/wiki/K-d_tree) to quickly perform
+  spatial-temporal search:
+  - What are the `k` ASOs that will come closest to the given ASO?
+  - How many ASOs will come within radius `r` of the given ASO?
+- A [library](conjunction_search/czml.py) for building
+  [CZML](https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Guide)
+  documents to display predicted orbits in CesiumJS.
+- A [Flask](https://flask.palletsprojects.com) API for serving CZML and
+  JSON conjunction search results.
+- A modern CesiumJS dashboard for querying and visualizing conjunctions.
+
+---
+
+## How to Run Locally (Windows)
+
+```sh
+# From the conjunction_search folder:
+pip install flask flask-restful numpy pandas requests scikit-learn
+
+$env:DEV = "true"
+python -m conjunction_search.api
+```
+
+Open: **http://localhost:8080**
+
+---
+
+## API Routes
+
+| Route | Method | Description |
+|---|---|---|
+| `/` | GET | Returns the main dashboard UI |
+| `/conjunction_search/<aso_id>?k=5` | GET | Returns CZML for K nearest satellites |
+| `/conjunction_search/<aso_id>?radius=100000` | GET | Returns CZML for satellites within radius |
+| `/conjunction_search/<aso_id>/details?k=5` | GET | Returns JSON with names, distances, risk levels, UTC times |
+
+---
 
 ## Environment Variables
 
-The service expects that you have a file named `vars.env` that sets environment variables that are used inside the docker container to either use test data or retrieve the needed pickle file from [Cloud Object Storage](https://cloud.ibm.com/docs/cloud-object-storage). Create a new Cloud Object Storage instance and create the file by
+| Variable | Description |
+|---|---|
+| `DEV` | Set to `true` to use local sample data |
+| `CESIUM_API_KEY` | Optional — Cesium Ion API key for 3D assets |
 
-```sh
-cp vars.env.example vars.env
-```
+---
 
-and then supplying the values for the following environment variables:
+## Original IBM Documentation
 
--   `DEV`: If set to `true`, uses the test data otherwise pulls the data from COS
-    `CESIUM_API_KEY`: The API key use to fetch 3D visualization assets.  See the [tutorial here](https://cesium.com/docs/tutorials/getting-started/) for creating an account and getting an access token.
--   `COS_ENDPOINT`: The [endpoint](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-endpoints#endpoints-region) used by the client to access the bucket.
--   `COS_API_KEY_ID`: The API secret key to authenticate with. (Optional)
--   `COS_INSTANCE_CRN`: The bucket instance CRN. (Optional)
--   `COS_BUCKET`: The COS bucket that the CSV file is in. (Optiona)
--   `COS_FILENAME`: The filename of the pickle file in the `COS_BUCKET`. (Optional)
-
-
-## Building and Running the Service
-
-The docker container can be built with
-
+The docker container can be built with:
 ```sh
 make build
 ```
 
-and the application can be run locally via
-
+And run locally via:
 ```sh
 make run
 ```
 
-Then you should be able to access the conjunction search UI at <http://localhost:8080>.
-
-
+For IBM Cloud Object Storage setup, see `vars.env.example`.
