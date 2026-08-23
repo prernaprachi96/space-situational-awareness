@@ -152,7 +152,7 @@ def conjunction_search_details(aso_id):
         else:
             risk = 'LOW'
 
-                # Convert timestep to real UTC datetime
+        # Convert timestep to real UTC datetime
         # Data starts Aug 25 2020, each step = 10 minutes
         pred_start = orbit_df.iloc[0].get('pred_start_dt',
                      pd.Timestamp('2020-08-25'))
