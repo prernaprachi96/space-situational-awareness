@@ -1,6 +1,5 @@
-# Complete Technical Explanation
 # SSA Conjunction Search Dashboard
-# By Prerna — DRDO Internship 2026
+# By Prerna — DRDO Internship 2025
 
 ---
 
