@@ -1,6 +1,4 @@
-# SSA Conjunction Search Dashboard # By Prerna — DRDO Internship 2025
-
----
+# SSA(Space Situational Awareness) Conjunction Search Dashboard By Prerna — DRDO Internship 2025
 
 # PART 1: WHAT IS THE BIG PICTURE?
 
